@@ -36,7 +36,7 @@ def gen():
         frame = get_frame()
         yield (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-subscriber = roslibpy.Topic(client, '/camera/color/image_raw/compressed', 'sensor_msgs/CompressedImage', queue_size=1)
+subscriber = roslibpy.Topic(client, '/camera/color/image_raw/compressed', 'sensor_msgs/CompressedImage', queue_size=0)
 subscriber.subscribe(receive_image)
 
 if __name__ == "__main__":

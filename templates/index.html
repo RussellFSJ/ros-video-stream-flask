@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <title>Camera Stream(s)</title>
+    </head>
+    <body>
+        <h1>Camera Stream(s)</h1>
+        <ul>
+            {% for camera in camera_topics %}
+                <li>{{camera}}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

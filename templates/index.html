@@ -5,8 +5,8 @@
     <body>
         <h1>Camera Stream(s)</h1>
         <ul>
-            {% for camera in camera_topics %}
-                <li>{{camera}}</li>
+            {% for camera in camera_list %}
+                <li style="margin-bottom: 10px;"><a href={{camera}}-color-image_raw-compressed>{{camera}}</a></li>
             {% endfor %}
         </ul>
     </body>

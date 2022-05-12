@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     @app.route("/")
     def home():
-        return render_template("index.html", camera_topics=stream.get_camera_topics())
+        return render_template("index.html", camera_list=stream.get_camera_list())
 
     @app.route("/<topic>")
     def show_video(topic):

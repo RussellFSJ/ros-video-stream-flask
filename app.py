@@ -67,9 +67,8 @@ if __name__ == "__main__":
 
     @app.route("/<topic>")
     def show_video(topic):
-        if topic != "favicon.ico":
-            topic = "/" + topic.replace("-", "/")
-            return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+        topic = "/" + topic.replace("-", "/")
+        return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
         
     try:
         app.run(host="0.0.0.0", threaded=True, debug=True)

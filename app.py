@@ -34,7 +34,7 @@ class ROSVideoStreamFlask:
 
             setattr(self, topic_frame, None)
             setattr(self, topic_event, Event())
-            setattr(self, topic_subscriber, roslibpy.Topic(self.client, topic, "sensor_msgs/CompressedImage", queue_length=1, throttle_rate=200))
+            setattr(self, topic_subscriber, roslibpy.Topic(self.client, topic, "sensor_msgs/CompressedImage", queue_length=1, throttle_rate=300))
 
             def stream_processing_callback(msg, frame=topic_frame, event=topic_event):
                 self.image_processing_callback(msg, frame, event)

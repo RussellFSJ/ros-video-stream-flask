@@ -34,7 +34,7 @@ class ROSVideoStreamFlask:
 
             setattr(self, topic_frame, None)
             setattr(self, topic_event, Event())
-            setattr(self, topic_subscriber, roslibpy.Topic(self.client, topic, "sensor_msgs/CompressedImage", queue_length=1))
+            setattr(self, topic_subscriber, roslibpy.Topic(self.client, topic, "sensor_msgs/CompressedImage", queue_length=1, throttle_rate=600))
 
             def stream_processing_callback(msg, frame=topic_frame, event=topic_event):
                 self.image_processing_callback(msg, frame, event)
@@ -67,8 +67,9 @@ if __name__ == "__main__":
 
     @app.route("/<topic>")
     def show_video(topic):
-        topic = "/" + topic.replace("-", "/")
-        return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+        if topic != "favicon.ico":
+            topic = "/" + topic.replace("-", "/")
+            return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
         
     try:
         app.run(host="0.0.0.0", threaded=True, debug=True)

@@ -1,6 +1,7 @@
 import base64
 import roslibpy
 from threading import Event
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from flask import Flask, Response, render_template
 
 HOST_IP = "192.168.69.2"
@@ -12,7 +13,8 @@ class ROSVideoStreamFlask:
 
         self.camera_topics = self.get_camera_topics()
 
-        self.create_stream(self.camera_topics)
+        with ThreadPoolExecutor(max_workers=len(self.camera_topics)) as executor:
+            executor.map(self.create_stream, self.camera_topics)
 
     # get list of camera(s) from nodes
     def get_camera_list(self):
@@ -26,8 +28,7 @@ class ROSVideoStreamFlask:
         return camera_topics
 
     # create subscriber for every image topic
-    def create_stream(self, camera_topics):
-        for topic in camera_topics:
+    def create_stream(self, topic):
             topic_frame = topic + "_frame"
             topic_event = topic + "_event"
             topic_subscriber = topic + "_subscriber"

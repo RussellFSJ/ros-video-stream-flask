@@ -1,10 +1,9 @@
+import sys
 import base64
 import roslibpy
 from threading import Event
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, Response, render_template
-
-HOST_IP = "192.168.69.2"
 
 class ROSVideoStreamFlask:
     def __init__(self, host) :
@@ -58,6 +57,12 @@ class ROSVideoStreamFlask:
             yield (b"--frame\r\n"b"Content-Type: image/jpeg\r\n\r\n" + getattr(self, topic + "_frame") + b"\r\n")
 
 if __name__ == "__main__":
+    try:
+        HOST_IP = sys.argv[1]
+    except IndexError:
+        HOST_IP = "192.168.69.2"
+        print("Did not receive IP address of the robot. Connecting to {} instead.".format(HOST_IP))
+        
     app = Flask(__name__)
 
     stream = ROSVideoStreamFlask(HOST_IP)

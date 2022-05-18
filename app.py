@@ -56,14 +56,14 @@ class ROSVideoStreamFlask:
             self.get_frame(topic)
             yield (b"--frame\r\n"b"Content-Type: image/jpeg\r\n\r\n" + getattr(self, topic + "_frame") + b"\r\n")
 
-if __name__ == "__main__":
+def main():
+    app = Flask(__name__)
+
     try:
         HOST_IP = sys.argv[1]
     except IndexError:
         HOST_IP = "192.168.69.2"
         print("Did not receive IP address of the robot. Connecting to {} instead.".format(HOST_IP))
-        
-    app = Flask(__name__)
 
     stream = ROSVideoStreamFlask(HOST_IP)
 
@@ -80,3 +80,7 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", threaded=True, debug=True)
     except KeyboardInterrupt:
         stream.client.terminate()
+
+
+if __name__ == "__main__":
+    main()

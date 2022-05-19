@@ -1,4 +1,22 @@
-from app import main
+from app import ROSVideoStreamFlask
+from flask import Flask, Response, render_template
 
+app = Flask(__name__)
+
+stream = ROSVideoStreamFlask()
+
+@app.route("/")
+def home():
+    return render_template("index.html", camera_list=stream.get_camera_list())
+
+@app.route("/<topic>")
+def show_video(topic):
+    topic = "/" + topic.replace("-", "/")
+    return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+    
 if __name__ == "__main__":
-    main()
+    try:
+        app.run(host="0.0.0.0", threaded=True, debug=False)
+    except KeyboardInterrupt:
+        stream.client.terminate()
+ 

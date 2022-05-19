@@ -1,13 +1,15 @@
-import sys
+import os
 import base64
 import roslibpy
 from threading import Event
+from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, Response, render_template
 
 class ROSVideoStreamFlask:
-    def __init__(self, host) :
-        self.client = roslibpy.Ros(host=host, port=9090)
+    def __init__(self):
+        load_dotenv()
+        self.client = roslibpy.Ros(host=os.environ["HOST_IP"], port=9090)
         self.client.run()
 
         self.camera_topics = self.get_camera_topics()
@@ -56,31 +58,21 @@ class ROSVideoStreamFlask:
             self.get_frame(topic)
             yield (b"--frame\r\n"b"Content-Type: image/jpeg\r\n\r\n" + getattr(self, topic + "_frame") + b"\r\n")
 
-def main():
-    app = Flask(__name__)
+app = Flask(__name__)
 
-    try:
-        HOST_IP = sys.argv[1]
-    except IndexError:
-        HOST_IP = "192.168.69.2"
-        print("Did not receive IP address of the robot. Connecting to {} instead.".format(HOST_IP))
+stream = ROSVideoStreamFlask()
 
-    stream = ROSVideoStreamFlask(HOST_IP)
+@app.route("/")
+def home():
+    return render_template("index.html", camera_list=stream.get_camera_list())
 
-    @app.route("/")
-    def home():
-        return render_template("index.html", camera_list=stream.get_camera_list())
-
-    @app.route("/<topic>")
-    def show_video(topic):
-        topic = "/" + topic.replace("-", "/")
-        return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
-        
+@app.route("/<topic>")
+def show_video(topic):
+    topic = "/" + topic.replace("-", "/")
+    return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+    
+if __name__ == "__main__":
     try:
         app.run(host="0.0.0.0", threaded=True, debug=True)
     except KeyboardInterrupt:
         stream.client.terminate()
-
-
-if __name__ == "__main__":
-    main()

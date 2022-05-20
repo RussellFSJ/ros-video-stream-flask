@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 flask = "*"
 roslibpy = "*"
-gunicorn = "*"
+gunicorn = {extras = ["gevent"], version = "*"}
 python-dotenv = "*"
 
 [dev-packages]

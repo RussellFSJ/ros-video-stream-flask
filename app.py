@@ -66,6 +66,11 @@ stream = ROSVideoStreamFlask()
 def home():
     return render_template("index.html", camera_list=stream.get_camera_list())
 
+@app.route("/camera_urls")
+def show_camera_urls():
+    camera_urls = {camera:camera + "-color-image_raw-compressed" for camera in stream.get_camera_list()}
+    return camera_urls
+
 @app.route("/<topic>")
 def show_video(topic):
     topic = "/" + topic.replace("-", "/")

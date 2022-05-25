@@ -5,6 +5,7 @@ from threading import Event
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, Response, render_template
+import time
 
 class ROSVideoStreamFlask:
     def __init__(self):
@@ -16,6 +17,8 @@ class ROSVideoStreamFlask:
 
         with ThreadPoolExecutor(max_workers=len(self.camera_topics)) as executor:
             executor.map(self.create_stream, self.camera_topics)
+
+        self.timer = roslibpy.Topic(self.client, "/ip_front/camera_time", "std_msgs/String")
 
     # get list of camera(s) from nodes
     def get_camera_list(self):
@@ -45,6 +48,7 @@ class ROSVideoStreamFlask:
 
     # process image frame to be streamed to server
     def image_processing_callback(self, msg, frame, event):
+        print(float(time.time()) - float(str(msg["header"]["stamp"]["secs"]) + "." + str(msg["header"]["stamp"]["nsecs"])))
         base64_bytes = msg["data"].encode("ascii")
         setattr(self, frame, base64.b64decode(base64_bytes))
         getattr(self, event).set()

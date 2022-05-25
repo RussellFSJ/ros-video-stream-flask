@@ -5,21 +5,19 @@ from threading import Event
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, Response, render_template
-import time
 
 class ROSVideoStreamFlask:
     def __init__(self):
         load_dotenv()
         self.client = roslibpy.Ros(host=os.environ["HOST_IP"], port=9090)
         self.client.run()
-        self.now_time = None
-        self.time_three = None
+
         self.camera_topics = self.get_camera_topics()
         self.count = 0
 
         with ThreadPoolExecutor(max_workers=len(self.camera_topics)) as executor:
             executor.map(self.create_stream, self.camera_topics)
-            
+
     # get list of camera(s) from nodes
     def get_camera_list(self):
         camera_nodes = [node for node in self.client.get_nodes() if "camera" in node]
@@ -48,10 +46,6 @@ class ROSVideoStreamFlask:
 
     # process image frame to be streamed to server
     def image_processing_callback(self, msg, frame, event):
-        # print(float(time.time()))
-        self.now_time = time.time()
-        # print(float(str(msg["header"]["stamp"]["secs"]) + "." + str(msg["header"]["stamp"]["nsecs"])))
-        # print(float(time.time()) - float(str(msg["header"]["stamp"]["secs"]) + "." + str(msg["header"]["stamp"]["nsecs"])))
         base64_bytes = msg["data"].encode("ascii")
         setattr(self, frame, base64.b64decode(base64_bytes))
         getattr(self, event).set()
@@ -63,8 +57,6 @@ class ROSVideoStreamFlask:
     def gen(self, topic):
         while True:
             self.get_frame(topic)
-            self.time_three = float(time.time()) - self.now_time
-            self.count += 1
             yield (b"--frame\r\n"b"Content-Type: image/jpeg\r\n\r\n" + getattr(self, topic + "_frame") + b"\r\n")
 
 app = Flask(__name__)
@@ -73,12 +65,13 @@ stream = ROSVideoStreamFlask()
 
 @app.route("/")
 def home():
-    return render_template("index.html", camera_list=stream.get_camera_list(), time=stream.time_three, count=stream.count)
+    return render_template("index.html", camera_list=stream.get_camera_list())
 
-@app.route("/camera_urls")
+@app.route("/.json")
 def show_camera_urls():
     camera_urls = {camera:camera + "-color-image_raw-compressed" for camera in stream.get_camera_list()}
     return camera_urls
+
 
 @app.route("/<topic>")
 def show_video(topic):

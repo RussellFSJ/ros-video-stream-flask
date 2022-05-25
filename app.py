@@ -48,6 +48,8 @@ class ROSVideoStreamFlask:
 
     # process image frame to be streamed to server
     def image_processing_callback(self, msg, frame, event):
+        print(float(time.time()))
+        print(float(str(msg["header"]["stamp"]["secs"]) + "." + str(msg["header"]["stamp"]["nsecs"])))
         print(float(time.time()) - float(str(msg["header"]["stamp"]["secs"]) + "." + str(msg["header"]["stamp"]["nsecs"])))
         base64_bytes = msg["data"].encode("ascii")
         setattr(self, frame, base64.b64decode(base64_bytes))

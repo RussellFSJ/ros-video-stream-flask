@@ -4,7 +4,7 @@ import roslibpy
 from threading import Event
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, jsonify
 
 class ROSVideoStreamFlask:
     def __init__(self):
@@ -70,7 +70,7 @@ def home():
 @app.route("/.json")
 def show_camera_urls():
     camera_urls = {camera:camera + "-color-image_raw-compressed" for camera in stream.get_camera_list()}
-    response = dict(sorted(camera_urls.items()))
+    response = jsonify(dict(sorted(camera_urls.items())))
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 

@@ -70,6 +70,7 @@ def home():
 @app.route("/.json")
 def show_camera_urls():
     camera_urls = {camera:camera + "-color-image_raw-compressed" for camera in stream.get_camera_list()}
+    camera_urls = dict(sorted(camera_urls.items()))
     return camera_urls
 
 

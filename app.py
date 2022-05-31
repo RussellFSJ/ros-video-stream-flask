@@ -13,7 +13,6 @@ class ROSVideoStreamFlask:
         self.client.run()
 
         self.camera_topics = self.get_camera_topics()
-        self.count = 0
 
         with ThreadPoolExecutor(max_workers=len(self.camera_topics)) as executor:
             executor.map(self.create_stream, self.camera_topics)
@@ -77,7 +76,9 @@ def show_camera_urls():
 @app.route("/<topic>")
 def show_video(topic):
     topic = "/" + topic.replace("-", "/")
-    return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+    response = Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
     
 if __name__ == "__main__":
     try:

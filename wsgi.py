@@ -19,7 +19,9 @@ def show_camera_urls():
 @app.route("/<topic>")
 def show_video(topic):
     topic = "/" + topic.replace("-", "/")
-    return Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+    response = Response(stream.gen(topic), mimetype="multipart/x-mixed-replace; boundary=frame")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
     
 if __name__ == "__main__":
     try:

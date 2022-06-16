@@ -31,6 +31,7 @@ class ROSVideoStreamFlask:
     def get_camera_topics(self):
         camera_topics = [topic for topic in self.client.get_topics_for_type(
             "sensor_msgs/CompressedImage") if "color/image_raw/compressed" in topic and "depth" not in topic.lower() and "parameter" not in topic.lower()]
+        print(camera_topics)
         return camera_topics
 
     # create subscriber for every image topic
